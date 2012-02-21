@@ -14,7 +14,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 (function($){
-    $.fn.faceDetection = function(settings){
+	$.fn.faceDetection = function(settings){
 		var options = {
 			confidence:null,
 			start:function(img) {
@@ -28,26 +28,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 		var $$ = $(this);
 		options.start($$);	
-		
-		if (!$$.is('img')) {
+
+		if (!$$.is('canvas')) {
 			options.error($$, 1, 'This is not an image.');
 			options.complete($$, []);
 			return [];
 		}
 
+//WTF ? 
 		function resizeCanvas(image, canvas) {
 			canvas.width = image.offsetWidth;
 			canvas.height = image.offsetHeight;
 		}
-		
+
 		// Grayscale function by Liu Liu
 		function grayscale(image) {
 			var canvas = document.createElement("canvas");
 			var ctx = canvas.getContext("2d");
-			
-			canvas.width  = image.offsetWidth;
-			canvas.height = image.offsetHeight;
-			
+
+			canvas.width  = image.width;
+			canvas.height = image.height;
+
 			ctx.drawImage(image, 0, 0);
 			var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 			var data = imageData.data;
@@ -66,7 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 				options.error($$, 2, 'This image is not valid');
 				return [];
 			}
-			
+
 			var positionX 	= $$.position().left;
 			var positionY 	= $$.position().top;	
 			var offsetX 	= $$.offset().left;
@@ -91,11 +92,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 			}
 			return newCoords;
 		}
-		
-		
+
+
 		var coords = detect();
 		options.complete($$, coords);
-	
+
 		return coords;
-    };
+	};
 })(jQuery);
