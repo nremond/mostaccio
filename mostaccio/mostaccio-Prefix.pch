@@ -1,0 +1,7 @@
+//
+// Prefix header for all source files of the 'mostaccio' target in the 'mostaccio' project
+//
+
+#ifdef __OBJC__
+    #import <UIKit/UIKit.h>
+#endif
