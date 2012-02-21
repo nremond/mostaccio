@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		327ACB5D14F42CCF00F98916 /* www in Resources */ = {isa = PBXBuildFile; fileRef = 327ACB5C14F42CCF00F98916 /* www */; };
 		37C3DC1A14F41244003B6802 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37C3DC1914F41244003B6802 /* Foundation.framework */; };
 		37C3DC1C14F41244003B6802 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37C3DC1B14F41244003B6802 /* UIKit.framework */; };
 		37C3DC1E14F41244003B6802 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37C3DC1D14F41244003B6802 /* CoreGraphics.framework */; };
@@ -35,10 +36,10 @@
 		37C3DC5A14F41244003B6802 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 37C3DC5914F41244003B6802 /* AppDelegate.m */; };
 		37C3DC5D14F41244003B6802 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 37C3DC5C14F41244003B6802 /* MainViewController.m */; };
 		37C3DC5F14F41244003B6802 /* MainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 37C3DC5E14F41244003B6802 /* MainViewController.xib */; };
-		37C3DC6814F4145E003B6802 /* www in Resources */ = {isa = PBXBuildFile; fileRef = 37C3DC6714F4145E003B6802 /* www */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		327ACB5C14F42CCF00F98916 /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; path = www; sourceTree = "<group>"; };
 		37C3DC1514F41244003B6802 /* mostaccio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mostaccio.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		37C3DC1914F41244003B6802 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		37C3DC1B14F41244003B6802 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -73,7 +74,6 @@
 		37C3DC5C14F41244003B6802 /* MainViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = MainViewController.m; path = Classes/MainViewController.m; sourceTree = "<group>"; };
 		37C3DC5E14F41244003B6802 /* MainViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = MainViewController.xib; path = Classes/MainViewController.xib; sourceTree = "<group>"; };
 		37C3DC6114F41244003B6802 /* README */ = {isa = PBXFileReference; lastKnownFileType = text; name = README; path = Plugins/README; sourceTree = "<group>"; };
-		37C3DC6714F4145E003B6802 /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; path = www; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,7 +111,7 @@
 		37C3DC0714F41244003B6802 = {
 			isa = PBXGroup;
 			children = (
-				37C3DC6714F4145E003B6802 /* www */,
+				327ACB5C14F42CCF00F98916 /* www */,
 				37C3DC3314F41244003B6802 /* mostaccio */,
 				37C3DC1814F41244003B6802 /* Frameworks */,
 				37C3DC1614F41244003B6802 /* Products */,
@@ -302,7 +302,7 @@
 				37C3DC5414F41244003B6802 /* Capture.bundle in Resources */,
 				37C3DC5614F41244003B6802 /* PhoneGap.plist in Resources */,
 				37C3DC5F14F41244003B6802 /* MainViewController.xib in Resources */,
-				37C3DC6814F4145E003B6802 /* www in Resources */,
+				327ACB5D14F42CCF00F98916 /* www in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -427,6 +427,7 @@
 				GCC_PREFIX_HEADER = "mostaccio/mostaccio-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "PHONEGAP_FRAMEWORK=YES";
 				INFOPLIST_FILE = "mostaccio/mostaccio-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = (
 					"-weak_framework",
 					UIKit,
@@ -454,6 +455,7 @@
 				GCC_PREFIX_HEADER = "mostaccio/mostaccio-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "PHONEGAP_FRAMEWORK=YES";
 				INFOPLIST_FILE = "mostaccio/mostaccio-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = (
 					"-weak_framework",
 					UIKit,
@@ -490,6 +492,7 @@
 				37C3DC6614F41245003B6802 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

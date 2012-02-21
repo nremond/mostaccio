@@ -1,1 +1,3 @@
-mostaccio.xcodeproj/.*
+mostaccio.xcodeproj/*
+
+mostaccio.xcodeproj/project.pbxproj
