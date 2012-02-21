@@ -63,6 +63,42 @@
                 // The inline CSS rules are used to resize the image
                 //
                 largeImage.src = imageURI;
+                
+                $("#largeImage").on("load", function(){
+                
+                    var c = $("#myCanvas").get(0);
+                    var ctx = c.getContext("2d");
+                    
+                    ctx.drawImage($(this).get(0), 0, 0, 282, 282);
+                });
+                
+                
+                $('#try').click(function() {
+                    var $this = $(this);
+                    
+                    var coords = $("#myCanvas").faceDetection({
+                        complete:function() {
+                            $this.text('Done!');
+                        },
+                        error:function(img, code, message) {
+                            $this.text('error!');
+                            alert('Error: '+message);
+                        }
+                    });
+                    for (var i = 0; i < coords.length; i++) {
+                        $('<div>', {
+                            'class':'face',
+                            'css': {
+                                'position':	'absolute',
+                                'left':		coords[i].positionX +'px',
+                                'top':		coords[i].positionY +'px',
+                                'width': 	coords[i].width		+'px',
+                                'height': 	coords[i].height	+'px'
+                            }
+                        })
+                        .appendTo('#content');
+                    }
+                });
             }
             
             // A button will call this function
@@ -104,13 +140,30 @@
             }
             
             </script>
+            <style>
+                .face {
+                    border:2px solid #FFF;
+                }
+            </style>
     </head>
     <body>
         <button onclick="capturePhoto();">Capture Photo</button> <br>
         <button onclick="capturePhotoEdit();">Capture Editable Photo</button> <br>
         <button onclick="getPhoto(pictureSource.PHOTOLIBRARY);">From Photo Library</button><br>
         <button onclick="getPhoto(pictureSource.SAVEDPHOTOALBUM);">From Photo Album</button><br>
-        <img style="display:none;width:60px;height:60px;" id="smallImage" src="" />
-        <img style="display:none;" id="largeImage" src="" />
+        <!--img style="display:none;width:60px;height:60px;" id="smallImage" src="" />
+        <img style="display:none;" id="largeImage" src="" /-->
+        <div id="container">
+        
+        
+            <div id="content">
+                <a href="#" id="try">TRY IT NOW!</a>
+                <canvas id="myCanvas" width="282" height="282"> </canvas>
+                <img id="largeImage" style="display:none"/>
+        
+        
+            </div>
+        
+        </div>
     </body>
 </html>
