@@ -57,7 +57,7 @@
                 
                 // Unhide image elements
                 //
-                largeImage.style.display = 'block';
+                //largeImage.style.display = 'block';
                 
                 // Show the captured photo
                 // The inline CSS rules are used to resize the image
@@ -69,7 +69,10 @@
                     var c = $("#myCanvas").get(0);
                     var ctx = c.getContext("2d");
                     
-                    ctx.drawImage($(this).get(0), 0, 0, 282, 282);
+                    c.width = 320;
+                    c.height = 239;
+                    
+                    ctx.drawImage($(this).get(0), 0, 0, 320, 239);
                 });
                 
                 
@@ -158,7 +161,7 @@
         
             <div id="content">
                 <a href="#" id="try">TRY IT NOW!</a>
-                <canvas id="myCanvas" width="282" height="282"> </canvas>
+                <canvas id="myCanvas"> </canvas>
                 <img id="largeImage" style="display:none"/>
         
         
