@@ -3,11 +3,11 @@
     <head>
         <title>Capture Photo</title>
         
-        <script type="text/javascript" charset="utf-8" src="phonegap-1.4.1.js"></script>
-        <script type="text/javascript" src="jquery-1.7.1.min.js"></script> 
-        <script type="text/javascript" src="facedetection/ccv.js"></script> 
-        <script type="text/javascript" src="facedetection/face.js"></script>
-        <script type="text/javascript" src="jquery.facedetection.js"></script> 
+        <script type="text/javascript" charset="utf-8" src="js/phonegap-1.4.1.js"></script>
+        <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script> 
+        <script type="text/javascript" src="js/facedetection/ccv.js"></script> 
+        <script type="text/javascript" src="js/facedetection/face.js"></script>
+        <script type="text/javascript" src="js/jquery.facedetection.js"></script> 
         
         <script type="text/javascript" charset="utf-8">
             
@@ -136,6 +136,12 @@
                                             sourceType: source });
             }
             
+            
+            function debugPhoto(){
+                onPhotoURISuccess("http://dl.dropbox.com/u/25764699/photo2.jpg")
+            }
+            
+            
             // Called if something bad happens.
             // 
             function onFail(message) {
@@ -154,6 +160,11 @@
         <button onclick="capturePhotoEdit();">Capture Editable Photo</button> <br>
         <button onclick="getPhoto(pictureSource.PHOTOLIBRARY);">From Photo Library</button><br>
         <button onclick="getPhoto(pictureSource.SAVEDPHOTOALBUM);">From Photo Album</button><br>
+        <br>
+        <button onclick="debugPhoto();">DEBUG</button><br>
+        <br>
+        
+        
         <!--img style="display:none;width:60px;height:60px;" id="smallImage" src="" />
         <img style="display:none;" id="largeImage" src="" /-->
         <div id="container">
@@ -161,6 +172,7 @@
         
             <div id="content">
                 <a href="#" id="try">TRY IT NOW!</a>
+                <br>
                 <canvas id="myCanvas"> </canvas>
                 <img id="largeImage" style="display:none"/>
         
