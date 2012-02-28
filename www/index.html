@@ -66,9 +66,10 @@
                 
                 $("#largeImage").on("load", function(){
                 
-                    var c = $("#myCanvas").get(0);
+                    var c = $("#smallCanvas").get(0);
                     var ctx = c.getContext("2d");
                     
+                    // TODO
                     c.width = 320;
                     c.height = 239;
                     
@@ -79,7 +80,7 @@
                 $('#try').click(function() {
                     var $this = $(this);
                     
-                    var coords = $("#myCanvas").faceDetection({
+                    var coords = $("#smallCanvas").faceDetection({
                         complete:function() {
                             $this.text('Done!');
                         },
@@ -138,7 +139,7 @@
             
             
             function debugPhoto(){
-                onPhotoURISuccess("http://dl.dropbox.com/u/25764699/photo2.jpg")
+                onPhotoURISuccess("img/photo.jpg")
             }
             
             
@@ -148,10 +149,81 @@
                 alert('Failed because: ' + message);
             }
             
+            function showMoustache() {
+                $('#moustache').attr('src', 'img/mustache.png');
+            
+                $('.face').each(function() {
+                    var moustache,
+                        facePosition,
+                        moustacheWidth,
+                        moustacheHeight,
+                        moustacheTop,
+                        moustacheLeft,
+                        moustacheRatio,
+                        faceWidth,
+                        faceHeight,
+                        faceTop,
+                        faceLeft;
+                        
+                    // create a moustache "instance"
+                    moustache = $('#moustache').clone();
+                    
+                    facePosition = $(this).position();
+                    faceTop = facePosition.top;
+                    faceLeft = facePosition.left;
+                    faceHeight = $(this).height();
+                    faceWidth = $(this).width();
+                    
+                    // anatomy lesson...
+                    moustacheRatio = moustache.get(0).width / moustache.get(0).height;
+                    moustacheHeight = faceHeight / 4;
+                    moustacheWidth = moustacheHeight * moustacheRatio;
+                    moustacheTop = faceTop + 4/5 * faceHeight - 1/2 * moustacheHeight;
+                    moustacheLeft = faceLeft + 1/2 * faceWidth - 1/2 * moustacheWidth;
+                    
+                    moustache.css({
+                        display: 'block',
+                        top: moustacheTop,
+                        left: moustacheLeft,
+                        height: moustacheHeight,
+                        width: moustacheWidth
+                    });
+                    
+                    moustache.appendTo('#content');
+                    moustache.attr('id', 'moustache1');
+                });
+            }
+            
+            // TODO
+            function saveImageWithMoustache() {
+                var canvas = $("#largeCanvas"),
+                    c = canvas.get(0),
+                    ctx = c.getContext("2d");
+                                
+                ctx.drawImage($('#largeImage').get(0), 0, 0);
+                ctx.drawImage($('#moustache1').get(0), 0, 0);
+                
+                canvas.show();
+            }
+            
             </script>
             <style>
                 .face {
                     border:2px solid #FFF;
+                }
+                #moustache {
+                    display: none;
+                }
+                .moustache {
+                    position: absolute;
+                    z-index: 2;
+                }
+                #smallCanvas {
+                    z-index: 1;
+                }
+                #largeImage,
+                #largeCanvas {
+                    display: none;
                 }
             </style>
     </head>
@@ -165,6 +237,10 @@
         <br>
         
         
+        <button onclick="showMoustache();">moustache!</button><br>
+        
+        <button onclick="saveImageWithMoustache();">save</button><br>
+        
         <!--img style="display:none;width:60px;height:60px;" id="smallImage" src="" />
         <img style="display:none;" id="largeImage" src="" /-->
         <div id="container">
@@ -173,8 +249,10 @@
             <div id="content">
                 <a href="#" id="try">TRY IT NOW!</a>
                 <br>
-                <canvas id="myCanvas"> </canvas>
-                <img id="largeImage" style="display:none"/>
+                <canvas id="smallCanvas"> </canvas>
+                <canvas id="largeCanvas"> </canvas>
+                <img id="moustache" class="moustache"/>
+                <img id="largeImage"/>
         
         
             </div>
