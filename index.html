@@ -21,8 +21,8 @@
             // PhoneGap is ready to be used!
             //
             function onDeviceReady() {
-                pictureSource=navigator.camera.PictureSourceType;
-                destinationType=navigator.camera.DestinationType;
+                pictureSource = navigator.camera.PictureSourceType;
+                destinationType = navigator.camera.DestinationType;
             }
             
             // Called when a photo is successfully retrieved
@@ -194,6 +194,8 @@
                     
                     mustache.bind("mousemove touchmove MozTouchMove", function(e) {
                         e.preventDefault();
+                        
+                        console.log(e);
                         
                         if(e.originalEvent.touches && e.originalEvent.touches.length) {
                             e = e.originalEvent.touches[0];
