@@ -3,14 +3,13 @@
     <head>
         <title>Capture Photo</title>
         
-        <script type="text/javascript" charset="utf-8" src="js/phonegap-1.4.1.js"></script>
+        <script type="text/javascript" charset="utf-8" src="js/cordova-1.5.0.js"></script>
         <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script> 
         <script type="text/javascript" src="js/facedetection/ccv.js"></script> 
         <script type="text/javascript" src="js/facedetection/face.js"></script>
         <script type="text/javascript" src="js/jquery.facedetection.js"></script> 
         
-        <script type="text/javascript" charset="utf-8">
-            
+        <script type="text/javascript" charset="utf-8">        
             var pictureSource;   // picture source
             var destinationType; // sets the format of returned value 
             
@@ -74,35 +73,7 @@
                     c.height = 239;
                     
                     ctx.drawImage($(this).get(0), 0, 0, 320, 239);
-                });
-                
-                
-                $('#try').click(function() {
-                    var $this = $(this);
-                    
-                    var coords = $("#smallCanvas").faceDetection({
-                        complete:function() {
-                            $this.text('Done!');
-                        },
-                        error:function(img, code, message) {
-                            $this.text('error!');
-                            alert('Error: '+message);
-                        }
-                    });
-                    for (var i = 0; i < coords.length; i++) {
-                        $('<div>', {
-                            'class':'face',
-                            'css': {
-                                'position':	'absolute',
-                                'left':		coords[i].positionX +'px',
-                                'top':		coords[i].positionY +'px',
-                                'width': 	coords[i].width		+'px',
-                                'height': 	coords[i].height	+'px'
-                            }
-                        })
-                        .appendTo('#content');
-                    }
-                });
+                });                
             }
             
             // A button will call this function
@@ -137,6 +108,32 @@
                                             sourceType: source });
             }
             
+            function detectFace() {
+                var $this = $(this);
+                
+                var coords = $("#smallCanvas").faceDetection({
+                    complete:function() {
+                        $this.text('Done!');
+                    },
+                    error:function(img, code, message) {
+                        $this.text('error!');
+                        alert('Error: '+message);
+                    }
+                });
+                for (var i = 0; i < coords.length; i++) {
+                    $('<div>', {
+                        'class':'face',
+                        'css': {
+                            'position':	'absolute',
+                            'left':		coords[i].positionX +'px',
+                            'top':		coords[i].positionY +'px',
+                            'width': 	coords[i].width		+'px',
+                            'height': 	coords[i].height	+'px'
+                        }
+                    })
+                    .appendTo('#content');
+                }
+            }
             
             function debugPhoto(){
                 onPhotoURISuccess("img/photo.jpg")
@@ -149,8 +146,12 @@
                 alert('Failed because: ' + message);
             }
             
+            var PREV_TOUCH_POSITION = {};
+            
             function showMustache() {
-                $('.face').each(function() {
+                $('.mustache[id!=mustache]').remove();
+            
+                $('.face').each(function(i) {
                     var mustache,
                         origMustache,
                         facePosition,
@@ -190,27 +191,110 @@
                     });
                     
                     mustache.appendTo('#content');
-                    mustache.attr('id', 'mustache1');
+                    mustache.attr('id', 'mustache' + i);
                     
-                    mustache.bind("mousemove touchmove MozTouchMove", function(e) {
+                    mustache.bind("touchstart click", function(e) {
+                        var mustache,
+                            mustacheHeight,
+                            mustacheWidth,
+                            mustacheManipulator,
+                            mustacheManipulatorId;
+                            
                         e.preventDefault();
                         
-                        console.log(e);
+                        mustacheManipulatorId = 'manip_' + e.target.id;
                         
-                        if(e.originalEvent.touches && e.originalEvent.touches.length) {
-                            e = e.originalEvent.touches[0];
-                        } else if(e.originalEvent.changedTouches && e.originalEvent.changedTouches.length) {
-                            e = e.originalEvent.changedTouches[0];
+                        // don't clone again and again
+                        if(document.getElementById(mustacheManipulatorId)) {
+                            // TODO $('#' + mustacheManipulatorId).remove();
+                            return;
                         }
-                    
-                        // Handle mouse move
-                        $(this).css({left:e.pageX, top:e.pageY});
+                        
+                        mustacheManipulator = $('#mustacheManipulatorTemplate').clone();
+                        mustache = $(this);
+                        mustacheHeight = Math.max(50, mustache.height() - 20) + 20;
+                        mustacheWidth = Math.max(50, mustache.width() - 20) + 20;    
+                        mustacheManipulator.css({
+                            top: mustache.position().top + mustache.height() / 2 - mustacheHeight / 2,
+                            left: mustache.position().left + mustache.width() / 2 - mustacheWidth / 2,
+                            height: mustacheHeight,
+                            width: mustacheWidth,
+                        });
+                        mustacheManipulator.appendTo('#content');
+                        mustacheManipulator.attr('id', mustacheManipulatorId);
+                                            
+                        mustacheManipulator.bind("touchstart touchend", function(e) {
+                            PREV_TOUCH_POSITION = {};
+                        });
+                        
+                        mustacheManipulator.bind("mousemove touchmove", function(e) {
+                            var mustacheId,
+                                move;
+                        
+                            e.preventDefault();
+                            
+                            if(e.originalEvent.touches && e.originalEvent.touches.length) {
+                                e = e.originalEvent.touches[0];
+                            } else if(e.originalEvent.changedTouches && e.originalEvent.changedTouches.length) {
+                                e = e.originalEvent.changedTouches[0];
+                            }
+                        
+                            move = function(id) {
+                                var prevPosition,
+                                    currentPosition;
+                                    
+                                prevPosition = PREV_TOUCH_POSITION[id];
+                                currentPosition = $('#' + id).position();
+                                if(prevPosition) {
+                                    // Handle mouse move
+                                    $('#' + id).css({
+                                        left: currentPosition.left + (e.pageX - prevPosition.x), 
+                                        top: currentPosition.top + (e.pageY - prevPosition.y)
+                                    });
+                                }
+                                
+                                // save for later
+                                PREV_TOUCH_POSITION[id] = {
+                                    x: e.pageX, 
+                                    y: e.pageY
+                                }; 
+                            };
+                            
+                            mustacheId = e.target.id.replace('manip_', '');
+                            move(mustacheId);
+                            move(e.target.id);
+                        });
+    
+                           
+                        mustacheManipulator.bind('gesturechange', function(e) {
+                            var scale,
+                              ratio,
+                              mustacheId;
+                            
+                            e.preventDefault();
+                            
+                            ratio = e.originalEvent.scale;
+                            
+                            scale = function(id) {
+                              $('#' + id).css({
+                                  '-webkit-transform-origin': '0 0';
+                              
+                                  '-moz-transform': 'scale(' + ratio + ')',
+                                  '-webkit-transform': 'scale(' + ratio + ')',
+                                  'transform': 'scale(' + ratio + ')'
+                              });
+                            };
+                            
+                            mustacheId = e.target.id.replace('manip_', '');
+                            scale(mustacheId);
+                            scale(e.target.id);
+                            
+                            consoleLog("Scale: " + e.originalEvent.scale + ", Rotation: " + e.originalEvent.rotation);
+                        });
+                                            
                         
                         
                     });
-
-                    
-                    
                 });
             }
             
@@ -225,10 +309,10 @@
                 
                 canvas.show();
             }
-            
-            
                        
-            
+            function consoleLog(str) {
+                $('#console').text(str);
+            }
             
             </script>
             <style>
@@ -242,7 +326,8 @@
                     z-index: -1; */
                     display:none
                 }
-                .mustache {
+                .mustache,
+                .mustacheManipulator {
                     position: absolute;
                     z-index: 2;
                 }
@@ -250,41 +335,38 @@
                     z-index: 1;
                 }
                 #largeImage,
-                #largeCanvas {
+                #largeCanvas,
+                #mustacheManipulatorTemplate {
                     display: none;
+                }
+                .mustacheManipulator {
+                    border: 1px solid red;
                 }
             </style>
     </head>
     <body>
+        <div id="console">console</div>
         <button onclick="capturePhoto();">Capture Photo</button> <br>
         <button onclick="capturePhotoEdit();">Capture Editable Photo</button> <br>
         <button onclick="getPhoto(pictureSource.PHOTOLIBRARY);">From Photo Library</button><br>
-        <button onclick="getPhoto(pictureSource.SAVEDPHOTOALBUM);">From Photo Album</button><br>
+        <!--button onclick="getPhoto(pictureSource.SAVEDPHOTOALBUM);">From Photo Album</button><br-->
         <br>
-        <button onclick="debugPhoto();">DEBUG</button><br>
-        <br>
-        
-        
+        <button onclick="debugPhoto();">localhost picture</button><br>
+        <button onclick="detectFace();">detect face</button><br>
         <button onclick="showMustache();">mustache!</button><br>
-        
         <button onclick="saveImageWithMustache();">save</button><br>
         
         <!--img style="display:none;width:60px;height:60px;" id="smallImage" src="" />
         <img style="display:none;" id="largeImage" src="" /-->
         <div id="container">
-        
-        
             <div id="content">
-                <a href="#" id="try">TRY IT NOW!</a>
-                <br>
                 <canvas id="smallCanvas"> </canvas>
                 <canvas id="largeCanvas"> </canvas>
                 <img id="mustache" class="mustache" src="img/mustache.png"/>
                 <img id="largeImage"/>
-        
-        
             </div>
-        
         </div>
+        
+        <div id="mustacheManipulatorTemplate" class="mustacheManipulator"></div>
     </body>
 </html>
