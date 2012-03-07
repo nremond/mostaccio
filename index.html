@@ -226,7 +226,7 @@
                         mustacheManipulator.bind("touchstart touchend", function(e) {
                             PREV_TOUCH_POSITION = {};
                         });
-                        
+                    /*    
                         mustacheManipulator.bind("mousemove touchmove", function(e) {
                             var mustacheId,
                                 move;
@@ -264,24 +264,24 @@
                             move(mustacheId);
                             move(e.target.id);
                         });
-    
+    */
                            
                         mustacheManipulator.bind('gesturechange', function(e) {
                             var scale,
-                              ratio,
-                              mustacheId;
+                                theta,
+                                lambda,
+                                mustacheId;
                             
                             e.preventDefault();
                             
-                            ratio = e.originalEvent.scale;
+                            lambda = e.originalEvent.scale;
+                            theta = e.originalEvent.rotation;
                             
                             scale = function(id) {
                               $('#' + id).css({
-                                  '-webkit-transform-origin': '0 0';
-                              
-                                  '-moz-transform': 'scale(' + ratio + ')',
-                                  '-webkit-transform': 'scale(' + ratio + ')',
-                                  'transform': 'scale(' + ratio + ')'
+                                  '-moz-transform': 'scale(' + lambda + ') ' + 'rotate(' + theta + 'deg)',
+                                  '-webkit-transform': 'scale(' + lambda + ') ' + 'rotate(' + theta + 'deg)',
+                                  'transform': 'scale(' + lambda + ') ' + 'rotate(' + theta + 'deg)'
                               });
                             };
                             
