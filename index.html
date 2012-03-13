@@ -226,13 +226,17 @@
                         mustacheManipulator.bind("touchstart touchend", function(e) {
                             PREV_TOUCH_POSITION = {};
                         });
-                    /*    
+                      
                         mustacheManipulator.bind("mousemove touchmove", function(e) {
                             var mustacheId,
                                 move;
                         
                             e.preventDefault();
-                            
+                        
+                            if(e.originalEvent.touches && e.originalEvent.touches.length > 1){
+                                return;
+                            }
+                        
                             if(e.originalEvent.touches && e.originalEvent.touches.length) {
                                 e = e.originalEvent.touches[0];
                             } else if(e.originalEvent.changedTouches && e.originalEvent.changedTouches.length) {
@@ -246,10 +250,15 @@
                                 prevPosition = PREV_TOUCH_POSITION[id];
                                 currentPosition = $('#' + id).position();
                                 if(prevPosition) {
+                                    
+                                    //var translation = 'translate(' + ( e.pageX-currentPosition.left)+ 'px, ' +(e.pageY-currentPosition.top)+ 'px)';
                                     // Handle mouse move
                                     $('#' + id).css({
                                         left: currentPosition.left + (e.pageX - prevPosition.x), 
                                         top: currentPosition.top + (e.pageY - prevPosition.y)
+                                      //'-webkit-transform': translation,
+                                      //'-moz-transform': translation,
+                                      //'transform': translation
                                     });
                                 }
                                 
@@ -264,7 +273,7 @@
                             move(mustacheId);
                             move(e.target.id);
                         });
-    */
+    
                            
                         mustacheManipulator.bind('gesturechange', function(e) {
                             var scale,
