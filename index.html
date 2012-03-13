@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Capture Photo</title>
+        <title>Mostaccio</title>
+        
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
         
         <script type="text/javascript" charset="utf-8" src="js/cordova-1.5.0.js"></script>
         <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script> 
@@ -22,6 +24,10 @@
             function onDeviceReady() {
                 pictureSource = navigator.camera.PictureSourceType;
                 destinationType = navigator.camera.DestinationType;
+                
+                document.addEventListener('touchmove', function(e) {
+                    e.preventDefault();  
+                }, false);
             }
             
             // Called when a photo is successfully retrieved
@@ -65,15 +71,32 @@
                 
                 $("#largeImage").on("load", function(){
                 
-                    var c = $("#smallCanvas").get(0);
-                    var ctx = c.getContext("2d");
+                    var canvas = $("#smallCanvas").get(0);
+                    var ctx = canvas.getContext("2d");
                     
                     // TODO
-                    c.width = 320;
-                    c.height = 239;
+                    canvas.width = 320;
+                    canvas.height = 240;
                     
-                    ctx.drawImage($(this).get(0), 0, 0, 320, 239);
-                });                
+                    
+                       /*if($(this).width() > $(this).height()){
+                           // translate context to center of canvas
+                           ctx.translate(canvas.width / 2, canvas.height / 2);
+                           // rotate 90 degrees clockwise
+                           ctx.rotate(Math.PI / 2);  
+                           
+                           ctx.translate(-canvas.width / 2, -canvas.height / 2);            
+                           
+                           ctx.drawImage($(this).get(0), 0, 0,  canvas.height, canvas.width);          
+                       } else {*/
+                           ctx.drawImage($(this).get(0), 0, 0, canvas.width, canvas.height);
+                           
+                       /*}*/
+                    
+                    
+                    detectFace();
+               
+                });             
             }
             
             // A button will call this function
@@ -86,18 +109,7 @@
                     destinationType: destinationType.FILE_URI, 
                     sourceType: pictureSource.CAMERA });
             }
-            
-            // A button will call this function
-            //
-            function capturePhotoEdit() {
-                // Take picture using device camera, allow edit
-                // Don't retrieve image as base64-encoded string, it causes memory issues
-                navigator.camera.getPicture(onPhotoURISuccess, onFail, { 
-                quality: 20, 
-                allowEdit: true, 
-                destinationType: destinationType.FILE_URI, 
-                sourceType: pictureSource.CAMERA }); 
-            }
+
             
             // A button will call this function
             //
@@ -131,7 +143,7 @@
                             'height': 	coords[i].height	+'px'
                         }
                     })
-                    .appendTo('#content');
+                    .appendTo('#picture');
                 }
             }
             
@@ -148,8 +160,8 @@
             
             var PREV_TOUCH_POSITION = {};
             
-            function showMustache() {
-                $('.mustache[id!=mustache]').remove();
+            function showMustache(mustacheNumber) {
+                $('.mustache[id!=mustacheTemplate]').remove();
             
                 $('.face').each(function(i) {
                     var mustache,
@@ -166,7 +178,8 @@
                         faceLeft;
                         
                     // create a mustache "instance"
-                    origMustache = $('#mustache');
+                    origMustache = $('#mustacheTemplate');
+                    origMustache.attr('src', 'img/mustache-' + mustacheNumber + '.png');
                     mustache = origMustache.clone();
                     
                     facePosition = $(this).position();
@@ -177,7 +190,7 @@
                     
                     // anatomy lesson...
                     mustacheRatio = origMustache.width() / origMustache.height();
-                    mustacheHeight = faceHeight / 4;
+                    mustacheHeight = faceHeight / 1.2; // empirical value based on mustache-*.png image files
                     mustacheWidth = mustacheHeight * mustacheRatio;
                     mustacheTop = faceTop + 4/5 * faceHeight - 1/3 * mustacheHeight;
                     mustacheLeft = faceLeft + 1/2 * faceWidth - 1/2 * mustacheWidth;
@@ -190,7 +203,7 @@
                         width: mustacheWidth
                     });
                     
-                    mustache.appendTo('#content');
+                    mustache.appendTo('#picture');
                     mustache.attr('id', 'mustache' + i);
                     
                     mustache.bind("touchstart click", function(e) {
@@ -220,7 +233,7 @@
                             height: mustacheHeight,
                             width: mustacheWidth,
                         });
-                        mustacheManipulator.appendTo('#content');
+                        mustacheManipulator.appendTo('#picture');
                         mustacheManipulator.attr('id', mustacheManipulatorId);
                                             
                         mustacheManipulator.bind("touchstart touchend", function(e) {
@@ -325,10 +338,7 @@
             
             </script>
             <style>
-                .face {
-                    border:2px solid #FFF;
-                }
-                #mustache {
+                #mustacheTemplate {
              /*       position: absolute;
                     visibility: hidden;
                     display: block;
@@ -351,31 +361,142 @@
                 .mustacheManipulator {
                     border: 1px solid red;
                 }
+                
+                /* CSS reset */
+                
+                /* http://meyerweb.com/eric/tools/css/reset/ 
+                   v2.0 | 20110126
+                   License: none (public domain)
+                */
+                
+                html, body, div, span, applet, object, iframe,
+                h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+                a, abbr, acronym, address, big, cite, code,
+                del, dfn, em, img, ins, kbd, q, s, samp,
+                small, strike, strong, sub, sup, tt, var,
+                b, u, i, center,
+                dl, dt, dd, ol, ul, li,
+                fieldset, form, label, legend,
+                table, caption, tbody, tfoot, thead, tr, th, td,
+                article, aside, canvas, details, embed, 
+                figure, figcaption, footer, header, hgroup, 
+                menu, nav, output, ruby, section, summary,
+                time, mark, audio, video {
+                    margin: 0;
+                    padding: 0;
+                    border: 0;
+                    font-size: 100%;
+                    font: inherit;
+                    vertical-align: baseline;
+                }
+                /* HTML5 display-role reset for older browsers */
+                article, aside, details, figcaption, figure, 
+                footer, header, hgroup, menu, nav, section {
+                    display: block;
+                }
+                body {
+                    line-height: 1;
+                }
+                ol, ul {
+                    list-style: none;
+                }
+                blockquote, q {
+                    quotes: none;
+                }
+                blockquote:before, blockquote:after,
+                q:before, q:after {
+                    content: '';
+                    content: none;
+                }
+                table {
+                    border-collapse: collapse;
+                    border-spacing: 0;
+                }
+                
+                /* layout */
+                
+                #application {
+                    height: 460px;
+                    width: 320px;
+                    position: absolute;
+                    background: black;
+                }
+                #picture {
+                    height: 416px;
+                    width: 320px;
+                    position: absolute;
+                }
+                #mustachebar {
+                    width: 320px;
+                    position: absolute;
+                    bottom: 44px; /* toolbar height */
+                    text-align: center; /* center mustaches */
+                }
+                #mustachebar img {
+                    background: white;
+                }
+                #toolbar {
+                    background: green;
+                    height: 44px;
+                    position: absolute;
+                    width: 320px;
+                    bottom: 0;
+                    text-align: center; /* center buttons */
+                }
+                #toolbar button {
+                    width: 31%;
+                    border: 0;
+                    background: none;
+                    color: white;
+                    height: 100%;
+                }
+                
+                /* to remove/hide... */
+                
+                #devStuff {
+                    position: absolute;
+                    z-index: 3;
+                }
+                #console {
+                    color: white;
+                }
+                .face {
+                    border: 1px dotted #FFF;
+                }
             </style>
     </head>
     <body>
-        <div id="console">console</div>
-        <button onclick="capturePhoto();">Capture Photo</button> <br>
-        <button onclick="capturePhotoEdit();">Capture Editable Photo</button> <br>
-        <button onclick="getPhoto(pictureSource.PHOTOLIBRARY);">From Photo Library</button><br>
-        <!--button onclick="getPhoto(pictureSource.SAVEDPHOTOALBUM);">From Photo Album</button><br-->
-        <br>
-        <button onclick="debugPhoto();">localhost picture</button><br>
-        <button onclick="detectFace();">detect face</button><br>
-        <button onclick="showMustache();">mustache!</button><br>
-        <button onclick="saveImageWithMustache();">save</button><br>
+        <!-- dev stuff -->
+        <div id="devStuff">
+            <div id="console">console</div>
+            <button onclick="debugPhoto();">localhost picture</button>
+        </div>
+
+        <!-- templates, will be cloned -->        
+        <div id="mustacheManipulatorTemplate" class="mustacheManipulator"></div>
+        <img id="mustacheTemplate" class="mustache" src=""/>
         
-        <!--img style="display:none;width:60px;height:60px;" id="smallImage" src="" />
-        <img style="display:none;" id="largeImage" src="" /-->
-        <div id="container">
-            <div id="content">
-                <canvas id="smallCanvas"> </canvas>
-                <canvas id="largeCanvas"> </canvas>
-                <img id="mustache" class="mustache" src="img/mustache.png"/>
-                <img id="largeImage"/>
+        <!-- never displayed, used only for importing picture and saving -->
+        <img id="largeImage"/>
+        <canvas id="largeCanvas"> </canvas>
+        
+        <!-- app layout -->
+        <div id="application">
+            <div id="picture">
+                <canvas id="smallCanvas"></canvas>
+            </div>
+            <div id="mustachebar">
+                <img src="img/mustache-small-1.png" onclick="showMustache(1);"/>
+                <img src="img/mustache-small-2.png" onclick="showMustache(2);"/>
+                <img src="img/mustache-small-3.png" onclick="showMustache(3);"/>
+                <img src="img/mustache-small-4.png" onclick="showMustache(4);"/>
+                <img src="img/mustache-small-5.png" onclick="showMustache(5);"/>
+            </div>
+            <div id="toolbar">
+                <button onclick="getPhoto(pictureSource.PHOTOLIBRARY);">Library</button>
+                <button onclick="capturePhoto();">Capture</button>
+                <button onclick="saveImageWithMustache();">Save</button>
             </div>
         </div>
-        
-        <div id="mustacheManipulatorTemplate" class="mustacheManipulator"></div>
     </body>
 </html>
