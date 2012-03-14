@@ -264,6 +264,7 @@
                                 currentPosition = $('#' + id).position();
                                 if(prevPosition) {
                                     
+                                    //TODO when using CSS3 translate() we may want to use : window.getComputedStyle(document.getElementById("footer"), null).left;
                                     //var translation = 'translate(' + ( e.pageX-currentPosition.left)+ 'px, ' +(e.pageY-currentPosition.top)+ 'px)';
                                     // Handle mouse move
                                     $('#' + id).css({
