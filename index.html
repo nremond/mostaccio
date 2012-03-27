@@ -214,7 +214,7 @@
                         
                     });
                                        
-                    mustache.bind('touchstart click', function(e) {
+                    mustache.on('touchstart click', function(e) {
                         var mustache,
                             mustacheHeight,
                             mustacheWidth,
@@ -244,11 +244,11 @@
                         mustacheManipulator.appendTo('#picture');
                         mustacheManipulator.attr('id', mustacheManipulatorId);
                                             
-                        mustacheManipulator.bind("touchstart touchend", function(e) {
+                        mustacheManipulator.on("touchstart touchend", function(e) {
                             PREV_TOUCH_POSITION = {};
                         });
                       
-                        mustacheManipulator.bind("mousemove touchmove", function(e) {
+                        mustacheManipulator.on("mousemove touchmove", function(e) {
                             var mustacheId,
                                 move;
                         
@@ -297,7 +297,7 @@
                         });
     
                            
-                        mustacheManipulator.bind('gesturechange', function(e) {
+                        mustacheManipulator.on('gesturechange', function(e) {
                             var scale,
                                 theta,
                                 lambda,
