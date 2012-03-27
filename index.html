@@ -161,31 +161,45 @@
             var PREV_TOUCH_POSITION = {};
             
             function showMustache(mustacheNumber) {
-                $('.mustache[id!=mustacheTemplate]').remove();
+                var mustaches;
+                
+                mustaches = $('.mustache[id!=mustacheTemplate]');
+                if(mustaches.length > 0){
+                    mustaches.each(function(){
+                       $(this).attr('src', 'img/mustache-' + mustacheNumber + '.png'); 
+                    });
+                } else {
+                    loadMustache(mustacheNumber);
+                } 
+            }
             
+            
+            function loadMustache(mustacheNumber) {
                 $('.face').each(function(i) {
                     var mustache,
                         origMustache,
-                        facePosition,
-                        mustacheWidth,
-                        mustacheHeight,
-                        mustacheTop,
-                        mustacheLeft,
-                        mustacheRatio,
-                        face,
-                        faceWidth,
-                        faceHeight,
-                        faceTop,
-                        faceLeft;
+                        face;
                         
                     // create a mustache "instance"
                     origMustache = $('#mustacheTemplate');
-                    origMustache.attr('src', 'img/mustache-' + mustacheNumber + '.png');
-
-                    mustache = origMustache.clone();
                     
+                    mustache = origMustache.clone();
+                    mustache.attr('src', 'img/mustache-' + mustacheNumber + '.png');
+
                     face = $(this);
-                    origMustache.on('load', function(){
+                    mustache.on('load', function() {
+                        var facePosition,
+                            faceTop,
+                            faceLeft,
+                            faceHeight,
+                            faceWidth,
+                            mustacheWidth,
+                            mustacheHeight,
+                            mustacheTop,
+                            mustacheLeft,
+                            mustacheRatio;
+                            
+                        mustache.off('load');
                                    
                         facePosition = face.position();
                         faceTop = facePosition.top;
@@ -194,7 +208,7 @@
                         faceWidth = face.width();
                         
                         // anatomy lesson...
-                        mustacheRatio = origMustache.width() / origMustache.height();
+                        mustacheRatio = 1; // all our mustaches are square... //mustache.width() / mustache.height();
                         mustacheHeight = faceHeight / 1.2; // empirical value based on mustache-*.png image files
                         mustacheWidth = mustacheHeight * mustacheRatio;
                         mustacheTop = faceTop + 4/5 * faceHeight - 1/3 * mustacheHeight;
@@ -209,9 +223,7 @@
                         });
                         
                         mustache.appendTo('#picture');
-                        mustache.attr('id', 'mustache' + i);
-
-                        
+                        mustache.attr('id', 'mustache' + i);                        
                     });
                                        
                     mustache.on('touchstart click', function(e) {
