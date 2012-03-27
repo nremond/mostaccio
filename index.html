@@ -172,6 +172,7 @@
                         mustacheTop,
                         mustacheLeft,
                         mustacheRatio,
+                        face,
                         faceWidth,
                         faceHeight,
                         faceTop,
@@ -180,33 +181,40 @@
                     // create a mustache "instance"
                     origMustache = $('#mustacheTemplate');
                     origMustache.attr('src', 'img/mustache-' + mustacheNumber + '.png');
+
                     mustache = origMustache.clone();
                     
-                    facePosition = $(this).position();
-                    faceTop = facePosition.top;
-                    faceLeft = facePosition.left;
-                    faceHeight = $(this).height();
-                    faceWidth = $(this).width();
-                    
-                    // anatomy lesson...
-                    mustacheRatio = origMustache.width() / origMustache.height();
-                    mustacheHeight = faceHeight / 1.2; // empirical value based on mustache-*.png image files
-                    mustacheWidth = mustacheHeight * mustacheRatio;
-                    mustacheTop = faceTop + 4/5 * faceHeight - 1/3 * mustacheHeight;
-                    mustacheLeft = faceLeft + 1/2 * faceWidth - 1/2 * mustacheWidth;
-                    
-                    mustache.css({
-                        display: 'block',
-                        top: mustacheTop,
-                        left: mustacheLeft,
-                        height: mustacheHeight,
-                        width: mustacheWidth
+                    face = $(this);
+                    origMustache.on('load', function(){
+                                   
+                        facePosition = face.position();
+                        faceTop = facePosition.top;
+                        faceLeft = facePosition.left;
+                        faceHeight = face.height();
+                        faceWidth = face.width();
+                        
+                        // anatomy lesson...
+                        mustacheRatio = origMustache.width() / origMustache.height();
+                        mustacheHeight = faceHeight / 1.2; // empirical value based on mustache-*.png image files
+                        mustacheWidth = mustacheHeight * mustacheRatio;
+                        mustacheTop = faceTop + 4/5 * faceHeight - 1/3 * mustacheHeight;
+                        mustacheLeft = faceLeft + 1/2 * faceWidth - 1/2 * mustacheWidth;
+                        
+                        mustache.css({
+                            display: 'block',
+                            top: mustacheTop,
+                            left: mustacheLeft,
+                            height: mustacheHeight,
+                            width: mustacheWidth
+                        });
+                        
+                        mustache.appendTo('#picture');
+                        mustache.attr('id', 'mustache' + i);
+
+                        
                     });
-                    
-                    mustache.appendTo('#picture');
-                    mustache.attr('id', 'mustache' + i);
-                    
-                    mustache.bind("touchstart click", function(e) {
+                                       
+                    mustache.bind('touchstart click', function(e) {
                         var mustache,
                             mustacheHeight,
                             mustacheWidth,
@@ -349,7 +357,7 @@
                 .mustache,
                 .mustacheManipulator {
                     position: absolute;
-                    z-index: 2;
+                    z-index: 3;
                 }
                 #smallCanvas {
                     z-index: 1;
@@ -463,6 +471,7 @@
                 }
                 .face {
                     border: 1px dotted #FFF;
+                    z-index: 2;
                 }
             </style>
     </head>
