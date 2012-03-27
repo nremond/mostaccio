@@ -255,10 +255,11 @@
                         });
                         mustacheManipulator.appendTo('#picture');
                         mustacheManipulator.attr('id', mustacheManipulatorId);
-                                            
-                        mustacheManipulator.on("touchstart touchend", function(e) {
-                            PREV_TOUCH_POSITION = {};
-                        });
+                                   
+                        // TODO why?          
+                        //mustacheManipulator.on("touchstart touchend", function(e) {
+                        //    PREV_TOUCH_POSITION = {};
+                        //});
                       
                         mustacheManipulator.on("mousemove touchmove", function(e) {
                             var mustacheId,
@@ -280,27 +281,24 @@
                                 var prevPosition,
                                     currentPosition;
                                     
-                                prevPosition = PREV_TOUCH_POSITION[id];
+                                //prevPosition = PREV_TOUCH_POSITION[id];
                                 currentPosition = $('#' + id).position();
-                                if(prevPosition) {
+                                //if(prevPosition) {
+                                                                        
+                                    var pxToNumber = function(pxValue) {
+                                        return Number(pxValue.replace('px','')); 
+                                    };
                                     
-                                    //TODO when using CSS3 translate() we may want to use : window.getComputedStyle(document.getElementById("footer"), null).left;
-                                    //var translation = 'translate(' + ( e.pageX-currentPosition.left)+ 'px, ' +(e.pageY-currentPosition.top)+ 'px)';
-                                    // Handle mouse move
-                                    $('#' + id).css({
-                                        left: currentPosition.left + (e.pageX - prevPosition.x), 
-                                        top: currentPosition.top + (e.pageY - prevPosition.y)
-                                      //'-webkit-transform': translation,
-                                      //'-moz-transform': translation,
-                                      //'transform': translation
-                                    });
-                                }
+                                    var el = window.getComputedStyle(document.getElementById(id), null);
+                                    
+                                    doCSSTransform(id, 'translate(' + ( e.pageX-pxToNumber(el.left))+ 'px, ' +(e.pageY-pxToNumber(el.top))+ 'px)');
+                                //}
                                 
                                 // save for later
-                                PREV_TOUCH_POSITION[id] = {
-                                    x: e.pageX, 
-                                    y: e.pageY
-                                }; 
+                                //PREV_TOUCH_POSITION[id] = {
+                                //    x: e.pageX, 
+                                //    y: e.pageY
+                                //}; 
                             };
                             
                             mustacheId = e.target.id.replace('manip_', '');
@@ -321,23 +319,43 @@
                             theta = e.originalEvent.rotation;
                             
                             scale = function(id) {
-                              $('#' + id).css({
-                                  '-moz-transform': 'scale(' + lambda + ') ' + 'rotate(' + theta + 'deg)',
-                                  '-webkit-transform': 'scale(' + lambda + ') ' + 'rotate(' + theta + 'deg)',
-                                  'transform': 'scale(' + lambda + ') ' + 'rotate(' + theta + 'deg)'
-                              });
+                                doCSSTransform(id, null, 'scale(' + lambda + ')', 'rotate(' + theta + 'deg)');                              
                             };
                             
                             mustacheId = e.target.id.replace('manip_', '');
                             scale(mustacheId);
                             scale(e.target.id);
-                            
-                            consoleLog("Scale: " + e.originalEvent.scale + ", Rotation: " + e.originalEvent.rotation);
                         });
                                             
                         
                         
                     });
+                });
+            }
+            
+            function doCSSTransform(id, translate, scale, rotate) {
+                if(!PREV_TOUCH_POSITION[id]) {
+                    PREV_TOUCH_POSITION[id] = {};
+                }
+                if(translate) {
+                    PREV_TOUCH_POSITION[id].translate = translate;
+                }
+                if(scale) {
+                    PREV_TOUCH_POSITION[id].scale = scale;
+                }
+                if(rotate) {
+                    PREV_TOUCH_POSITION[id].rotate = rotate;
+                }
+                
+                var transform = (PREV_TOUCH_POSITION[id].translate || ' ') + 
+                    (PREV_TOUCH_POSITION[id].scale || ' ') + 
+                    (PREV_TOUCH_POSITION[id].rotate || ' ');
+//consoleLog(transform);
+                // Handle mouse move
+                $('#' + id).css({
+                    '-webkit-transform': transform,
+                    '-moz-transform': transform,
+                    'transform': transform
                 });
             }
             
