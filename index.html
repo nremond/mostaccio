@@ -120,31 +120,27 @@
                                             sourceType: source });
             }
             
-            function detectFace() {
-                var $this = $(this);
-                
-                var coords = $("#smallCanvas").faceDetection({
-                    complete:function() {
-                        $this.text('Done!');
+            function detectFace() {           
+                $("#smallCanvas").faceDetection({
+                    complete:function(img, coords) {
+                        for (var i = 0; i < coords.length; i++) {
+                            $('<div>', {
+                                'class':'face',
+                                'css': {
+                                    'position':	'absolute',
+                                    'left':		coords[i].positionX +'px',
+                                    'top':		coords[i].positionY +'px',
+                                    'width': 	coords[i].width		+'px',
+                                    'height': 	coords[i].height	+'px'
+                                }
+                            })
+                            .appendTo('#picture');
+                        }
                     },
                     error:function(img, code, message) {
-                        $this.text('error!');
                         alert('Error: '+message);
                     }
                 });
-                for (var i = 0; i < coords.length; i++) {
-                    $('<div>', {
-                        'class':'face',
-                        'css': {
-                            'position':	'absolute',
-                            'left':		coords[i].positionX +'px',
-                            'top':		coords[i].positionY +'px',
-                            'width': 	coords[i].width		+'px',
-                            'height': 	coords[i].height	+'px'
-                        }
-                    })
-                    .appendTo('#picture');
-                }
             }
             
             function debugPhoto(){
