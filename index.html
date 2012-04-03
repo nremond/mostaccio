@@ -12,9 +12,10 @@
         <script type="text/javascript" src="js/jquery.facedetection.js"></script> 
         
         <script type="text/javascript" charset="utf-8">        
-            var pictureSource;   // picture source
-            var destinationType; // sets the format of returned value 
-            var PREV_TOUCH_POSITION = {};
+            var pictureSource,   // picture source
+                destinationType, // sets the format of returned value 
+                PREV_TOUCH_POSITION = {},
+                preventTranslate = false; // flag to prevent translations after a scale/rotate (2 finger gestures) when release one of the two fingers
 
             
             // Wait for PhoneGap to connect with the device
@@ -237,7 +238,7 @@
                         
                             e.preventDefault();
                         
-                            if(e.originalEvent.touches && e.originalEvent.touches.length > 1){
+                            if(preventTranslate || (e.originalEvent.touches && e.originalEvent.touches.length > 1)){
                                 return;
                             }
                         
@@ -291,8 +292,16 @@
                             scale(mustacheId);
                             scale(e.target.id);
                         });
-                                            
+                                    
+                        mustacheManipulator.on('gestureend', function(e) {
+                            e.preventDefault();
+                            preventTranslate = true;
+                        });
                         
+                        mustacheManipulator.on('touchend', function(e) {
+                            e.preventDefault();
+                            preventTranslate = false;
+                        });
                         
                     });
                 });
