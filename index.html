@@ -250,6 +250,14 @@
                 mustacheManipulator.on('gestureend', function(e) {
                     e.preventDefault();
                     preventTranslate = true;
+                    
+                    // TODO cleanup
+                    var mustacheId = e.target.id.replace('manip_', '');
+                    TRANSFORMATIONS[mustacheId].prevScale = TRANSFORMATIONS[mustacheId].prevScale || 1;                    
+                    TRANSFORMATIONS[mustacheId].prevScale *= e.originalEvent.scale;
+                    TRANSFORMATIONS[mustacheId].prevRotate = TRANSFORMATIONS[mustacheId].prevRotate || 0;                    
+                    TRANSFORMATIONS[mustacheId].prevRotate += e.originalEvent.rotation;
+                    
                 });
                 
                 mustacheManipulator.on('touchend', function(e) {
@@ -266,14 +274,18 @@
                 
                 e.preventDefault();
                 
-                lambda = e.originalEvent.scale;
-                theta = e.originalEvent.rotation;
+                // TODO cleanup
+                mustacheId = e.target.id.replace('manip_', '');
+                var s = TRANSFORMATIONS[mustacheId] && TRANSFORMATIONS[mustacheId].prevScale ? TRANSFORMATIONS[mustacheId].prevScale : 1;     
+                var r = TRANSFORMATIONS[mustacheId] && TRANSFORMATIONS[mustacheId].prevRotate ? TRANSFORMATIONS[mustacheId].prevRotate : 0;   
+                
+                lambda = e.originalEvent.scale * s;
+                theta = e.originalEvent.rotation + r;
                 
                 transform = function(id) {
                     doCSSTransform(id, null, Math.max(lambda, 1), theta);                              
                 };
-                
-                mustacheId = e.target.id.replace('manip_', '');
+               
                 transform(mustacheId);
                 transform(e.target.id);
             }
@@ -332,11 +344,9 @@
                 }
                 if(scale) {
                     t.scale = scale;
-                    t.prevScale = scale;
                 }
                 if(rotate) {
                     t.rotate = rotate;
-                    t.prevRotate = rotate;
                 }
                 
                 t_translate =  t.translate ? 'translate(' + t.translate.x + 'px, ' + t.translate.y + 'px) ' : ' '; 
