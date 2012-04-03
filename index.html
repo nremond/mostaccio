@@ -14,7 +14,7 @@
         <script type="text/javascript" charset="utf-8">        
             var pictureSource,   // picture source
                 destinationType, // sets the format of returned value 
-                PREV_TOUCH_POSITION = {},
+                CURRENT_TRANSFORMATION = {},
                 preventTranslate = false; // flag to prevent translations after a scale/rotate (2 finger gestures) when release one of the two fingers
 
             
@@ -262,9 +262,10 @@
                                 
                                 el = window.getComputedStyle(document.getElementById(id), null);
                                 
-                                doCSSTransform(id, 'translate(' + 
-                                    Math.floor(e.pageX - pxToNumber(el.left) - pxToNumber(el.width)/2) + 'px, ' +
-                                    Math.floor(e.pageY - pxToNumber(el.top) - pxToNumber(el.height)/2) + 'px)');
+                                doCSSTransform(id, {
+                                    x: Math.floor(e.pageX - pxToNumber(el.left) - pxToNumber(el.width)/2),
+                                    y: Math.floor(e.pageY - pxToNumber(el.top) - pxToNumber(el.height)/2)
+                                });
                             };
                             
                             mustacheId = e.target.id.replace('manip_', '');
@@ -285,7 +286,7 @@
                             theta = e.originalEvent.rotation;
                             
                             scale = function(id) {
-                                doCSSTransform(id, null, 'scale(' + lambda + ')', 'rotate(' + theta + 'deg)');                              
+                                doCSSTransform(id, null, Math.max(lambda, 1), theta);                              
                             };
                             
                             mustacheId = e.target.id.replace('manip_', '');
@@ -308,23 +309,32 @@
             }
             
             function doCSSTransform(id, translate, scale, rotate) {
-                if(!PREV_TOUCH_POSITION[id]) {
-                    PREV_TOUCH_POSITION[id] = {};
+                var transform,
+                    t,
+                    t_translate,
+                    t_rotate,
+                    t_scale;
+                
+                if(!CURRENT_TRANSFORMATION[id]) {
+                    CURRENT_TRANSFORMATION[id] = {};
                 }
+                t = CURRENT_TRANSFORMATION[id];
+                
                 if(translate) {
-                    PREV_TOUCH_POSITION[id].translate = translate;
+                    t.translate = translate;
                 }
                 if(scale) {
-                    PREV_TOUCH_POSITION[id].scale = scale;
+                    t.scale = scale;
                 }
                 if(rotate) {
-                    PREV_TOUCH_POSITION[id].rotate = rotate;
+                    t.rotate = rotate;
                 }
                 
-                var transform = (PREV_TOUCH_POSITION[id].translate || ' ') + 
-                    (PREV_TOUCH_POSITION[id].scale || ' ') + 
-                    (PREV_TOUCH_POSITION[id].rotate || ' ');
-//consoleLog(transform);
+                t_translate =  t.translate ? 'translate(' + t.translate.x + 'px, ' + t.translate.y + 'px) ' : ' '; 
+                t_scale = t.scale ? 'scale(' + t.scale + ') ' : ' ';
+                t_rotate = t.rotate ? 'rotate(' + t.rotate + 'deg) ' : ' ';
+                transform = t_translate + t_rotate + t_scale;
+
                 // Handle mouse move
                 $('#' + id).css({
                     '-webkit-transform': transform,
@@ -471,6 +481,7 @@
                     z-index: 3;
                 }
                 #console {
+                    background: black;
                     color: white;
                 }
                 .face {
