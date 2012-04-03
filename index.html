@@ -6,7 +6,7 @@
         <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
         
         <script type="text/javascript" charset="utf-8" src="js/cordova-1.5.0.js"></script>
-        <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script> 
+        <script type="text/javascript" src="js/jquery-1.7.2.js"></script> 
         <script type="text/javascript" src="js/facedetection/ccv.js"></script> 
         <script type="text/javascript" src="js/facedetection/face.js"></script>
         <script type="text/javascript" src="js/jquery.facedetection.js"></script> 
@@ -14,7 +14,7 @@
         <script type="text/javascript" charset="utf-8">        
             var pictureSource,   // picture source
                 destinationType, // sets the format of returned value 
-                CURRENT_TRANSFORMATION = {},
+                TRANSFORMATIONS = {},
                 preventTranslate = false; // flag to prevent translations after a scale/rotate (2 finger gestures) when release one of the two fingers
 
             
@@ -164,148 +164,155 @@
 
                     face = $(this);
                     mustache.on('load', function() {
-                        var facePosition,
-                            faceTop,
-                            faceLeft,
-                            faceHeight,
-                            faceWidth,
-                            mustacheWidth,
-                            mustacheHeight,
-                            mustacheTop,
-                            mustacheLeft,
-                            mustacheRatio;
-                            
-                        mustache.off('load');
-                                   
-                        facePosition = face.position();
-                        faceTop = facePosition.top;
-                        faceLeft = facePosition.left;
-                        faceHeight = face.height();
-                        faceWidth = face.width();
-                        
-                        // anatomy lesson...
-                        mustacheRatio = 1; // all our mustaches are square... //mustache.width() / mustache.height();
-                        mustacheHeight = faceHeight / 1.2; // empirical value based on mustache-*.png image files
-                        mustacheWidth = mustacheHeight * mustacheRatio;
-                        mustacheTop = faceTop + 4/5 * faceHeight - 1/3 * mustacheHeight;
-                        mustacheLeft = faceLeft + 1/2 * faceWidth - 1/2 * mustacheWidth;
-                        
-                        mustache.css({
-                            display: 'block',
-                            top: mustacheTop,
-                            left: mustacheLeft,
-                            height: mustacheHeight,
-                            width: mustacheWidth
-                        });
-                        
-                        mustache.appendTo('#picture');
-                        mustache.attr('id', 'mustache' + i);                        
+                        onMustacheImgLoad(mustache, face, i);
                     });
                                        
-                    mustache.on('touchstart click', function(e) {
-                        var mustache,
-                            mustacheHeight,
-                            mustacheWidth,
-                            mustacheManipulator,
-                            mustacheManipulatorId;
-                            
-                        e.preventDefault();
-                        
-                        mustacheManipulatorId = 'manip_' + e.target.id;
-                        
-                        // don't clone again and again
-                        if(document.getElementById(mustacheManipulatorId)) {
-                            // TODO $('#' + mustacheManipulatorId).remove();
-                            return;
-                        }
-                        
-                        mustacheManipulator = $('#mustacheManipulatorTemplate').clone();
-                        mustache = $(this);
-                        mustacheHeight = Math.max(50, mustache.height() - 20) + 20;
-                        mustacheWidth = Math.max(50, mustache.width() - 20) + 20;    
-                        mustacheManipulator.css({
-                            top: mustache.position().top + mustache.height() / 2 - mustacheHeight / 2,
-                            left: mustache.position().left + mustache.width() / 2 - mustacheWidth / 2,
-                            height: mustacheHeight,
-                            width: mustacheWidth,
-                        });
-                        mustacheManipulator.appendTo('#picture');
-                        mustacheManipulator.attr('id', mustacheManipulatorId);
-                      
-                        mustacheManipulator.on("mousemove touchmove", function(e) {
-                            var mustacheId,
-                                move;
-                        
-                            e.preventDefault();
-                        
-                            if(preventTranslate || (e.originalEvent.touches && e.originalEvent.touches.length > 1)){
-                                return;
-                            }
-                        
-                            if(e.originalEvent.touches && e.originalEvent.touches.length) {
-                                e = e.originalEvent.touches[0];
-                            } else if(e.originalEvent.changedTouches && e.originalEvent.changedTouches.length) {
-                                e = e.originalEvent.changedTouches[0];
-                            }
-                        
-                            move = function(id) {
-                                var prevPosition,
-                                    currentPosition,
-                                    pxToNumber,
-                                    el;
-                                    
-                                currentPosition = $('#' + id).position();
-                                                                        
-                                pxToNumber = function(pxValue) {
-                                    return Number(pxValue.replace('px','')); 
-                                };
-                                
-                                el = window.getComputedStyle(document.getElementById(id), null);
-                                
-                                doCSSTransform(id, {
-                                    x: Math.floor(e.pageX - pxToNumber(el.left) - pxToNumber(el.width)/2),
-                                    y: Math.floor(e.pageY - pxToNumber(el.top) - pxToNumber(el.height)/2)
-                                });
-                            };
-                            
-                            mustacheId = e.target.id.replace('manip_', '');
-                            move(mustacheId);
-                            move(e.target.id);
-                        });
-    
-                           
-                        mustacheManipulator.on('gesturechange', function(e) {
-                            var scale,
-                                theta,
-                                lambda,
-                                mustacheId;
-                            
-                            e.preventDefault();
-                            
-                            lambda = e.originalEvent.scale;
-                            theta = e.originalEvent.rotation;
-                            
-                            scale = function(id) {
-                                doCSSTransform(id, null, Math.max(lambda, 1), theta);                              
-                            };
-                            
-                            mustacheId = e.target.id.replace('manip_', '');
-                            scale(mustacheId);
-                            scale(e.target.id);
-                        });
-                                    
-                        mustacheManipulator.on('gestureend', function(e) {
-                            e.preventDefault();
-                            preventTranslate = true;
-                        });
-                        
-                        mustacheManipulator.on('touchend', function(e) {
-                            e.preventDefault();
-                            preventTranslate = false;
-                        });
-                        
-                    });
+                    mustache.on('touchstart click', onTouchStart);
                 });
+            }
+            
+            function onMustacheImgLoad(mustache, face, i) {
+                var facePosition,
+                    faceTop,
+                    faceLeft,
+                    faceHeight,
+                    faceWidth,
+                    mustacheWidth,
+                    mustacheHeight,
+                    mustacheTop,
+                    mustacheLeft,
+                    mustacheRatio;
+                                        
+                mustache.off('load');
+                           
+                facePosition = face.position();
+                faceTop = facePosition.top;
+                faceLeft = facePosition.left;
+                faceHeight = face.height();
+                faceWidth = face.width();
+                
+                // anatomy lesson...
+                mustacheRatio = 1; // all our mustaches are square... //mustache.width() / mustache.height();
+                mustacheHeight = faceHeight / 1.2; // empirical value based on mustache-*.png image files
+                mustacheWidth = mustacheHeight * mustacheRatio;
+                mustacheTop = faceTop + 4/5 * faceHeight - 1/3 * mustacheHeight;
+                mustacheLeft = faceLeft + 1/2 * faceWidth - 1/2 * mustacheWidth;
+                
+                mustache.css({
+                    display: 'block',
+                    top: mustacheTop,
+                    left: mustacheLeft,
+                    height: mustacheHeight,
+                    width: mustacheWidth
+                });
+                
+                mustache.appendTo('#picture');
+                mustache.attr('id', 'mustache' + i);                        
+            }
+            
+            function onTouchStart(e) {
+                var mustache,
+                    mustacheHeight,
+                    mustacheWidth,
+                    mustacheManipulator,
+                    mustacheManipulatorId,
+                    mustacheId;
+                    
+                e.preventDefault();
+                
+                mustacheId = e.target.id;
+                
+                mustacheManipulatorId = 'manip_' + mustacheId;
+                
+                // don't clone again and again
+                if(document.getElementById(mustacheManipulatorId)) {
+                    // TODO $('#' + mustacheManipulatorId).remove();
+                    return;
+                }
+                
+                mustacheManipulator = $('#mustacheManipulatorTemplate').clone();
+                mustache = $(this);
+                mustacheHeight = Math.max(50, mustache.height() - 20) + 20;
+                mustacheWidth = Math.max(50, mustache.width() - 20) + 20;    
+                mustacheManipulator.css({
+                    top: mustache.position().top + mustache.height() / 2 - mustacheHeight / 2,
+                    left: mustache.position().left + mustache.width() / 2 - mustacheWidth / 2,
+                    height: mustacheHeight,
+                    width: mustacheWidth,
+                });
+                mustacheManipulator.appendTo('#picture');
+                mustacheManipulator.attr('id', mustacheManipulatorId);
+              
+                mustacheManipulator.on('mousemove touchmove', onTouchMove);
+                
+                mustacheManipulator.on('gesturechange', onGestureChange);
+                            
+                mustacheManipulator.on('gestureend', function(e) {
+                    e.preventDefault();
+                    preventTranslate = true;
+                });
+                
+                mustacheManipulator.on('touchend', function(e) {
+                    e.preventDefault();
+                    preventTranslate = false;
+                });
+            }
+            
+            function onGestureChange(e) {
+                var transform,
+                    theta,
+                    lambda,
+                    mustacheId;
+                
+                e.preventDefault();
+                
+                lambda = e.originalEvent.scale;
+                theta = e.originalEvent.rotation;
+                
+                transform = function(id) {
+                    doCSSTransform(id, null, Math.max(lambda, 1), theta);                              
+                };
+                
+                mustacheId = e.target.id.replace('manip_', '');
+                transform(mustacheId);
+                transform(e.target.id);
+            }
+           
+            function onTouchMove(e) {
+                var mustacheId,
+                    move;
+            
+                e.preventDefault();
+            
+                if(preventTranslate || (e.originalEvent.touches && e.originalEvent.touches.length > 1)){
+                    return;
+                }
+            
+                if(e.originalEvent.touches && e.originalEvent.touches.length) {
+                    e = e.originalEvent.touches[0];
+                } else if(e.originalEvent.changedTouches && e.originalEvent.changedTouches.length) {
+                    e = e.originalEvent.changedTouches[0];
+                }
+            
+                move = function(id) {
+                    var pxToNumber,
+                        el;
+                                                                                                
+                    pxToNumber = function(pxValue) {
+                        return Number(pxValue.replace('px','')); 
+                    };
+                    
+                    el = window.getComputedStyle(document.getElementById(id), null);
+                    
+                    doCSSTransform(id, {
+                        x: Math.floor(e.pageX - pxToNumber(el.left) - pxToNumber(el.width)/2),
+                        y: Math.floor(e.pageY - pxToNumber(el.top) - pxToNumber(el.height)/2)
+                    });
+                };
+                
+                mustacheId = e.target.id.replace('manip_', '');
+                move(mustacheId);
+                move(e.target.id);
             }
             
             function doCSSTransform(id, translate, scale, rotate) {
@@ -315,19 +322,21 @@
                     t_rotate,
                     t_scale;
                 
-                if(!CURRENT_TRANSFORMATION[id]) {
-                    CURRENT_TRANSFORMATION[id] = {};
+                if(!TRANSFORMATIONS[id]) {
+                    TRANSFORMATIONS[id] = {};
                 }
-                t = CURRENT_TRANSFORMATION[id];
+                t = TRANSFORMATIONS[id];
                 
                 if(translate) {
                     t.translate = translate;
                 }
                 if(scale) {
                     t.scale = scale;
+                    t.prevScale = scale;
                 }
                 if(rotate) {
                     t.rotate = rotate;
+                    t.prevRotate = rotate;
                 }
                 
                 t_translate =  t.translate ? 'translate(' + t.translate.x + 'px, ' + t.translate.y + 'px) ' : ' '; 
