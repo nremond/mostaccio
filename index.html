@@ -244,43 +244,53 @@
                 mustacheManipulator.attr('id', mustacheManipulatorId);
               
                 mustacheManipulator.on('mousemove touchmove', onTouchMove);
-                
                 mustacheManipulator.on('gesturechange', onGestureChange);
-                            
-                mustacheManipulator.on('gestureend', function(e) {
-                    e.preventDefault();
-                    preventTranslate = true;
-                    
-                    // TODO cleanup
-                    var mustacheId = e.target.id.replace('manip_', '');
-                    TRANSFORMATIONS[mustacheId].prevScale = TRANSFORMATIONS[mustacheId].prevScale || 1;                    
-                    TRANSFORMATIONS[mustacheId].prevScale *= e.originalEvent.scale;
-                    TRANSFORMATIONS[mustacheId].prevRotate = TRANSFORMATIONS[mustacheId].prevRotate || 0;                    
-                    TRANSFORMATIONS[mustacheId].prevRotate += e.originalEvent.rotation;
-                    
-                });
+                mustacheManipulator.on('gestureend', onGestureEnd);
+                mustacheManipulator.on('touchend', onTouchEnd);
+            }
+            
+            function onTouchEnd(e) {
+                e.preventDefault();
+                preventTranslate = false;
+            }
+            
+            function onGestureEnd(e) {
+                var mustacheId,
+                    trans;
                 
-                mustacheManipulator.on('touchend', function(e) {
-                    e.preventDefault();
-                    preventTranslate = false;
-                });
+                e.preventDefault();
+                preventTranslate = true;
+                
+                mustacheId = e.target.id.replace('manip_', '');
+                trans = TRANSFORMATIONS[mustacheId];
+                
+                trans.prevScale = trans.prevScale || 1;                    
+                trans.prevScale *= e.originalEvent.scale;
+                
+                trans.prevRotate = trans.prevRotate || 0;                    
+                trans.prevRotate += e.originalEvent.rotation;
             }
             
             function onGestureChange(e) {
                 var transform,
                     theta,
                     lambda,
-                    mustacheId;
+                    mustacheId,
+                    trans,
+                    scale,
+                    rotation;
                 
                 e.preventDefault();
+                preventTranslate = true;
                 
-                // TODO cleanup
                 mustacheId = e.target.id.replace('manip_', '');
-                var s = TRANSFORMATIONS[mustacheId] && TRANSFORMATIONS[mustacheId].prevScale ? TRANSFORMATIONS[mustacheId].prevScale : 1;     
-                var r = TRANSFORMATIONS[mustacheId] && TRANSFORMATIONS[mustacheId].prevRotate ? TRANSFORMATIONS[mustacheId].prevRotate : 0;   
+                trans = TRANSFORMATIONS[mustacheId];
                 
-                lambda = e.originalEvent.scale * s;
-                theta = e.originalEvent.rotation + r;
+                scale = trans && trans.prevScale ? trans.prevScale : 1;     
+                rotation = trans && trans.prevRotate ? trans.prevRotate : 0;   
+                
+                lambda = e.originalEvent.scale * scale;
+                theta = e.originalEvent.rotation + rotation;
                 
                 transform = function(id) {
                     doCSSTransform(id, null, Math.max(lambda, 1), theta);                              
