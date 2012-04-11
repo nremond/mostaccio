@@ -165,9 +165,7 @@
                     face = $(this);
                     mustache.on('load', function() {
                         onMustacheImgLoad(mustache, face, i);
-                    });
-                                       
-                    mustache.on('touchstart click', onTouchStart);
+                    });                                       
                 });
             }
             
@@ -205,48 +203,14 @@
                     height: mustacheHeight,
                     width: mustacheWidth
                 });
+
+                mustache.on('mousemove touchmove', onTouchMove);
+                mustache.on('gesturechange', onGestureChange);
+                mustache.on('gestureend', onGestureEnd);
+                mustache.on('touchend', onTouchEnd);  
                 
                 mustache.appendTo('#picture');
-                mustache.attr('id', 'mustache' + i);                        
-            }
-            
-            function onTouchStart(e) {
-                var mustache,
-                    mustacheHeight,
-                    mustacheWidth,
-                    mustacheManipulator,
-                    mustacheManipulatorId,
-                    mustacheId;
-                    
-                e.preventDefault();
-                
-                mustacheId = e.target.id;
-                
-                mustacheManipulatorId = 'manip_' + mustacheId;
-                
-                // don't clone again and again
-                if(document.getElementById(mustacheManipulatorId)) {
-                    // TODO $('#' + mustacheManipulatorId).remove();
-                    return;
-                }
-                
-                mustacheManipulator = $('#mustacheManipulatorTemplate').clone();
-                mustache = $(this);
-                mustacheHeight = Math.max(50, mustache.height() - 20) + 20;
-                mustacheWidth = Math.max(50, mustache.width() - 20) + 20;    
-                mustacheManipulator.css({
-                    top: mustache.position().top + mustache.height() / 2 - mustacheHeight / 2,
-                    left: mustache.position().left + mustache.width() / 2 - mustacheWidth / 2,
-                    height: mustacheHeight,
-                    width: mustacheWidth,
-                });
-                mustacheManipulator.appendTo('#picture');
-                mustacheManipulator.attr('id', mustacheManipulatorId);
-              
-                mustacheManipulator.on('mousemove touchmove', onTouchMove);
-                mustacheManipulator.on('gesturechange', onGestureChange);
-                mustacheManipulator.on('gestureend', onGestureEnd);
-                mustacheManipulator.on('touchend', onTouchEnd);
+                mustache.attr('id', 'mustache' + i);       
             }
             
             function onTouchEnd(e) {
@@ -261,7 +225,7 @@
                 e.preventDefault();
                 preventTranslate = true;
                 
-                mustacheId = e.target.id.replace('manip_', '');
+                mustacheId = e.target.id;
                 trans = TRANSFORMATIONS[mustacheId];
                 
                 trans.prevScale = trans.prevScale || 1;                    
@@ -272,8 +236,7 @@
             }
             
             function onGestureChange(e) {
-                var transform,
-                    theta,
+                var theta,
                     lambda,
                     mustacheId,
                     trans,
@@ -283,7 +246,7 @@
                 e.preventDefault();
                 preventTranslate = true;
                 
-                mustacheId = e.target.id.replace('manip_', '');
+                mustacheId = e.target.id;
                 trans = TRANSFORMATIONS[mustacheId];
                 
                 scale = trans && trans.prevScale ? trans.prevScale : 1;     
@@ -292,17 +255,12 @@
                 lambda = e.originalEvent.scale * scale;
                 theta = e.originalEvent.rotation + rotation;
                 
-                transform = function(id) {
-                    doCSSTransform(id, null, Math.max(lambda, 1), theta);                              
-                };
-               
-                transform(mustacheId);
-                transform(e.target.id);
+                doCSSTransform(mustacheId, null, Math.max(lambda, 1), theta);
             }
            
             function onTouchMove(e) {
                 var mustacheId,
-                    move;
+                    el;
             
                 e.preventDefault();
             
@@ -315,26 +273,19 @@
                 } else if(e.originalEvent.changedTouches && e.originalEvent.changedTouches.length) {
                     e = e.originalEvent.changedTouches[0];
                 }
-            
-                move = function(id) {
-                    var pxToNumber,
-                        el;
-                                                                                                
-                    pxToNumber = function(pxValue) {
-                        return Number(pxValue.replace('px','')); 
-                    };
-                    
-                    el = window.getComputedStyle(document.getElementById(id), null);
-                    
-                    doCSSTransform(id, {
-                        x: Math.floor(e.pageX - pxToNumber(el.left) - pxToNumber(el.width)/2),
-                        y: Math.floor(e.pageY - pxToNumber(el.top) - pxToNumber(el.height)/2)
-                    });
-                };
                 
-                mustacheId = e.target.id.replace('manip_', '');
-                move(mustacheId);
-                move(e.target.id);
+                mustacheId = e.target.id;
+                
+                el = window.getComputedStyle(document.getElementById(mustacheId), null);
+                
+                doCSSTransform(mustacheId, {
+                    x: Math.floor(e.pageX - pxToNumber(el.left) - pxToNumber(el.width)/2),
+                    y: Math.floor(e.pageY - pxToNumber(el.top) - pxToNumber(el.height)/2)
+                });
+            }
+            
+            function pxToNumber(pxValue) {
+                return Number(pxValue.replace('px','')); 
             }
             
             function doCSSTransform(id, translate, scale, rotate) {
@@ -397,8 +348,7 @@
                     z-index: -1; */
                     display:none
                 }
-                .mustache,
-                .mustacheManipulator {
+                .mustache {
                     position: absolute;
                     z-index: 3;
                 }
@@ -408,14 +358,10 @@
                     z-index: 1;
                 }
                 #largeImage,
-                #largeCanvas,
-                #mustacheManipulatorTemplate {
+                #largeCanvas {
                     display: none;
                 }
-                .mustacheManipulator {
-                    border: 1px solid red;
-                }
-                
+                                            
                 /* CSS reset */
                 
                 /* http://meyerweb.com/eric/tools/css/reset/ 
@@ -519,6 +465,9 @@
                     border: 1px dotted #FFF;
                     z-index: 2;
                 }
+                .mustache {
+                    border: 1px dotted red;
+                }
             </style>
     </head>
     <body>
@@ -528,8 +477,7 @@
             <button onclick="debugPhoto();">localhost picture</button>
         </div>
 
-        <!-- templates, will be cloned -->        
-        <div id="mustacheManipulatorTemplate" class="mustacheManipulator"></div>
+        <!-- template, will be cloned -->        
         <img id="mustacheTemplate" class="mustache" src=""/>
         
         <!-- never displayed, used only for importing picture and saving -->
