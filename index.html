@@ -12,96 +12,94 @@
         <script type="text/javascript" src="js/jquery.facedetection.js"></script> 
         
         <script type="text/javascript" charset="utf-8">        
-            var pictureSource,   // picture source
-                destinationType, // sets the format of returned value 
-                TRANSFORMATIONS = {},
+            var TRANSFORMATIONS = {},
                 preventTranslate = false; // flag to prevent translations after a scale/rotate (2 finger gestures) when release one of the two fingers
-
             
-            // Wait for PhoneGap to connect with the device
-            //
-            document.addEventListener("deviceready",onDeviceReady,false);
-            
-            // PhoneGap is ready to be used!
-            //
-            function onDeviceReady() {
-                pictureSource = navigator.camera.PictureSourceType;
-                destinationType = navigator.camera.DestinationType;
-                
+            $(document).ready(function() {     
+                // avoid scrolling the whole page/document
                 document.addEventListener('touchmove', function(e) {
                     e.preventDefault();  
                 }, false);
-            }
-
-            function onPhotoURISuccess(imageURI) {
-                // Uncomment to view the image file URI 
-                //alert(imageURI);
                 
-                // Get image handle
-                //
-                var largeImage = document.getElementById('largeImage');
+                // launch face detection when a new image is loaded
+                $("#largeImage").on("load", function() {
+                    var canvas,
+                        ctx;
                 
-                // Unhide image elements
-                //
-                //largeImage.style.display = 'block';
-                
-                // Show the captured photo
-                // The inline CSS rules are used to resize the image
-                //
-                largeImage.src = imageURI;
-                
-                $("#largeImage").on("load", function(){
-                
-                    var canvas = $("#smallCanvas").get(0);
-                    var ctx = canvas.getContext("2d");
+                    canvas = $("#smallCanvas").get(0);
+                    ctx = canvas.getContext("2d");
                     
                     // TODO
                     canvas.width = 320;
                     canvas.height = 240;
                     
-                    
-                       /*if($(this).width() > $(this).height()){
-                           // translate context to center of canvas
-                           ctx.translate(canvas.width / 2, canvas.height / 2);
-                           // rotate 90 degrees clockwise
-                           ctx.rotate(Math.PI / 2);  
-                           
-                           ctx.translate(-canvas.width / 2, -canvas.height / 2);            
-                           
-                           ctx.drawImage($(this).get(0), 0, 0,  canvas.height, canvas.width);          
-                       } else {*/
-                           ctx.drawImage($(this).get(0), 0, 0, canvas.width, canvas.height);
-                           
-                       /*}*/
-                    
-                    
+                   /*if($(this).width() > $(this).height()){
+                       // translate context to center of canvas
+                       ctx.translate(canvas.width / 2, canvas.height / 2);
+                       // rotate 90 degrees clockwise
+                       ctx.rotate(Math.PI / 2);  
+                       
+                       ctx.translate(-canvas.width / 2, -canvas.height / 2);            
+                       
+                       ctx.drawImage($(this).get(0), 0, 0,  canvas.height, canvas.width);          
+                   } else {*/
+                       ctx.drawImage($(this).get(0), 0, 0, canvas.width, canvas.height);
+                       
+                   /*}*/
+            
                     detectFace();
-               
-                });             
-            }
-            
-            // A button will call this function
-            //
-            function capturePhoto() {
-                // Take picture using device camera
-                // Don't retrieve image as base64-encoded string, it causes memory issues
-                navigator.camera.getPicture(onPhotoURISuccess, onFail, {
-                    quality: 50, 
-                    destinationType: destinationType.FILE_URI, 
-                    sourceType: pictureSource.CAMERA });
-            }
+                });
+            });
 
-            
-            // A button will call this function
-            //
-            function getPhoto(source) {
-                // Retrieve image file location from specified source
-                navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 50, 
-                                            destinationType: destinationType.FILE_URI,
-                                            sourceType: source });
+            function reset() {
+                var canvas,
+                    ctx;
+
+                // remove image
+                canvas = $("#smallCanvas").get(0);
+                ctx = canvas.getContext("2d");
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // remove faces
+                $('.face').remove();
+
+                // remove mustaches
+                $('.mustache[id!=mustacheTemplate]').remove();
+                
+                // reset transformations
+                TRANSFORMATIONS = {};
             }
             
-            function detectFace() {           
+            function onPhotoURISuccess(imageURI) {
+                var largeImage;
+                
+                reset();
+                
+                // Get image handle
+                largeImage = document.getElementById('largeImage');
+                
+                // Show the captured photo
+                // The inline CSS rules are used to resize the image
+                largeImage.src = imageURI;          
+            }
+            
+            // Take picture using device camera
+            function capturePhoto() {
+                // Don't retrieve image as base64-encoded string, it causes memory issues
+                navigator.camera.getPicture(onPhotoURISuccess, consoleLog, {
+                    quality: 50, 
+                    destinationType: navigator.camera.DestinationType.FILE_URI, 
+                    sourceType: navigator.camera.PictureSourceType.CAMERA });
+            }
+            
+            // load a picture from the photo library
+            function getPhotoFromLibrary() {
+                navigator.camera.getPicture(onPhotoURISuccess, consoleLog, { quality: 50, 
+                                            destinationType: navigator.camera.DestinationType.FILE_URI,
+                                            sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY });
+            }
+            
+            function detectFace() {
                 $("#smallCanvas").faceDetection({
                     complete:function(img, coords) {
                         for (var i = 0; i < coords.length; i++) {
@@ -127,15 +125,7 @@
             function debugPhoto(){
                 onPhotoURISuccess("img/photo.jpg")
             }
-            
-            
-            // Called if something bad happens.
-            // 
-            function onFail(message) {
-                alert('Failed because: ' + message);
-            }
-            
-            
+                        
             function showMustache(mustacheNumber) {
                 var mustaches;
                 
@@ -148,8 +138,7 @@
                     loadMustache(mustacheNumber);
                 } 
             }
-            
-            
+                        
             function loadMustache(mustacheNumber) {
                 $('.face').each(function(i) {
                     var mustache,
@@ -310,12 +299,12 @@
                     t.rotate = rotate;
                 }
                 
+                // TODO: 3d transform to use hardware acceleration?
                 t_translate =  t.translate ? 'translate(' + t.translate.x + 'px, ' + t.translate.y + 'px) ' : ' '; 
                 t_scale = t.scale ? 'scale(' + t.scale + ') ' : ' ';
                 t_rotate = t.rotate ? 'rotate(' + t.rotate + 'deg) ' : ' ';
                 transform = t_translate + t_rotate + t_scale;
 
-                // Handle mouse move
                 $('#' + id).css({
                     '-webkit-transform': transform,
                     '-moz-transform': transform,
@@ -336,7 +325,11 @@
             }
                        
             function consoleLog(str) {
-                $('#console').text(str);
+                if(console && typeof(console.log) === 'function') {
+                    console.log(str);
+                } else {
+                    $('#console').text(str);
+                }
             }
             
             </script>
@@ -497,7 +490,7 @@
                 <img src="img/mustache-small-5.png" onclick="showMustache(5);"/>
             </div>
             <div id="toolbar">
-                <button onclick="getPhoto(pictureSource.PHOTOLIBRARY);">Library</button>
+                <button onclick="getPhotoFromLibrary();">Library</button>
                 <button onclick="capturePhoto();">Capture</button>
                 <button onclick="saveImageWithMustache();">Save</button>
             </div>
