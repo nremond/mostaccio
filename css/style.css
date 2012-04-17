@@ -14,8 +14,7 @@
    image-rendering: optimize-contrast;   
    z-index: 1;
 }
-#largeImage,
-#largeCanvas {
+#largeImage {
    display: none;
 }
      					   

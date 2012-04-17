@@ -93,7 +93,7 @@ $(document).ready(function() {
                      'class':'face',
                      'css': {
                          'position':	'absolute',
-                         'left':		coords[i].positionX +'px',
+                         'left':	coords[i].positionX +'px',
                          'top':		coords[i].positionY +'px',
                          'width': 	coords[i].width		+'px',
                          'height': 	coords[i].height	+'px'
@@ -298,16 +298,22 @@ $(document).ready(function() {
      });
  }
  
- // TODO
  function saveImageWithMustache() {
-     var canvas = $("#largeCanvas"),
-         c = canvas.get(0),
-         ctx = c.getContext("2d");
-                     
-     ctx.drawImage($('#largeImage').get(0), 0, 0);
-     ctx.drawImage($('#mustache1').get(0), 0, 0);
-     
-     canvas.show();
+     var canvas = document.createElement("canvas"),
+        image = $('#largeImage'),
+        ctx = canvas.getContext('2d');
+    
+     canvas.width = image.width();
+     canvas.height = image.height();
+
+     ctx.drawImage(image.get(0), 0, 0);
+     //ctx.drawImage($('#mustache0').get(0), 0, 0);
+          
+     try {
+         window.plugins.SaveImage.saveImage(canvas.toDataURL().replace(/^([^,]+),/, ''));
+     } catch(e){
+         consoleLog(e);
+     }
  }
             
  function consoleLog(str) {
