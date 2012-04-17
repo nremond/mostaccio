@@ -1,0 +1,80 @@
+#mustacheTemplate {
+/*       position: absolute;
+   visibility: hidden;
+   display: block;
+   z-index: -1; */
+   display:none
+}
+.mustache {
+   position: absolute;
+   z-index: 3;
+}
+#smallCanvas {
+   image-rendering: -webkit-optimize-contrast;                                     
+   image-rendering: optimize-contrast;   
+   z-index: 1;
+}
+#largeImage,
+#largeCanvas {
+   display: none;
+}
+     					   
+
+
+/* layout */
+
+#application {
+   height: 460px;
+   width: 320px;
+   position: absolute;
+   background: black;
+}
+#picture {
+   height: 416px;
+   width: 320px;
+   position: absolute;
+}
+#mustachebar {
+   width: 320px;
+   position: absolute;
+   bottom: 44px; /* toolbar height */
+   text-align: center; /* center mustaches */
+   z-index: 4; /* above everything else */
+}
+#mustachebar img {
+   background: white;
+}
+#toolbar {
+   background: green;
+   height: 44px;
+   position: absolute;
+   width: 320px;
+   bottom: 0;
+   text-align: center; /* center buttons */
+   z-index: 4; /* above everything else */
+}
+#toolbar button {
+   width: 31%;
+   border: 0;
+   background: none;
+   color: white;
+   height: 100%;
+}
+
+/* to remove/hide... */
+
+#devStuff {
+   position: absolute;
+   z-index: 3;
+}
+#console {
+   background: black;
+   color: white;
+}
+.face {
+   border: 1px dotted #FFF;
+   z-index: 2;
+}
+.mustache {
+   border: 1px dotted red;
+}
