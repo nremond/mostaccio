@@ -131,7 +131,7 @@ Mustache.prototype = {
     },
     onTouchMove: function(e) {
         var style;
-consoleLog(e);
+        
         e.preventDefault();
 
         if(this.preventTranslate || (e.originalEvent.touches && e.originalEvent.touches.length !== 1)) {
