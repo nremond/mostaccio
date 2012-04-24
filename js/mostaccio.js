@@ -45,6 +45,11 @@ function Mustache(domId, mustacheTemplateNumber, face) {
         scale: 1,
         rotate: 0
     };
+    this.left = 0;
+    this.top = 0;
+    this.width = 0;
+    this.height = 0;
+
     this.preventTranslate = false; // flag to prevent translations after a scale/rotate (2 finger gestures) when release one of the two fingers
 
     this.el = $('#mustacheTemplate').clone();
@@ -69,10 +74,6 @@ Mustache.prototype = {
             faceLeft,
             faceHeight,
             faceWidth,
-            mustacheWidth,
-            mustacheHeight,
-            mustacheTop,
-            mustacheLeft,
             mustacheRatio;
 
         this.el.off('load');
@@ -85,20 +86,20 @@ Mustache.prototype = {
 
         // anatomy lesson...
         mustacheRatio = 1; // all our mustaches are square... //this.el.width() / this.el.height();
-        mustacheHeight = faceHeight / 1.2; // empirical value based on mustache-*.png image files
-        mustacheWidth = mustacheHeight * mustacheRatio;
-        mustacheTop = faceTop + 4/5 * faceHeight - 1/3 * mustacheHeight;
-        mustacheLeft = faceLeft + 1/2 * faceWidth - 1/2 * mustacheWidth;
+        this.height = faceHeight / 1.2; // empirical value based on mustache-*.png image files
+        this.width = this.height * mustacheRatio;
+        this.top = faceTop + 4/5 * faceHeight - 1/3 * this.height;
+        this.left = faceLeft + 1/2 * faceWidth - 1/2 * this.width;
 
         this.el.css({
             display: 'block',
-            top: mustacheTop,
-            left: mustacheLeft,
-            height: mustacheHeight,
-            width: mustacheWidth
+            top: this.top,
+            left: this.left,
+            height: this.height,
+            width: this.width
         });
 
-        this.el.on('mousemove touchmove', $.proxy(this.onTouchMove, this));
+        this.el.on('touchmove', $.proxy(this.onTouchMove, this));
         this.el.on('gesturechange', $.proxy(this.onGestureChange, this));
         this.el.on('gestureend', $.proxy(this.onGestureEnd, this));
         this.el.on('touchend', $.proxy(this.onTouchEnd, this));  
@@ -112,7 +113,7 @@ Mustache.prototype = {
     onGestureEnd: function(e) {
         e.preventDefault();
         this.preventTranslate = true;
-               
+
         this.transformations.prevScale *= e.originalEvent.scale;                
         this.transformations.prevRotate += e.originalEvent.rotation;
     },
@@ -130,10 +131,10 @@ Mustache.prototype = {
     },
     onTouchMove: function(e) {
         var style;
-
+consoleLog(e);
         e.preventDefault();
 
-        if(this.preventTranslate || (e.originalEvent.touches && e.originalEvent.touches.length > 1)) {
+        if(this.preventTranslate || (e.originalEvent.touches && e.originalEvent.touches.length !== 1)) {
             return;
         }
 
@@ -143,11 +144,9 @@ Mustache.prototype = {
             e = e.originalEvent.changedTouches[0];
         }
 
-        style = window.getComputedStyle(this.el[0], null);
-
         this.transformations.translate = {
-            x: Math.floor(e.pageX - pxToNumber(style.left) - pxToNumber(style.width)/2),
-            y: Math.floor(e.pageY - pxToNumber(style.top) - pxToNumber(style.height)/2)
+            x: Math.floor(e.pageX - this.left - this.width/2),
+            y: Math.floor(e.pageY - this.top - this.height/2)
         };
 
         this.doCSSTransform();
@@ -255,10 +254,6 @@ function loadMustache(mustacheTemplateNumber) {
     $('.face').each(function(i) {
         MUSTACHES.push(new Mustache('mustache' + i, mustacheTemplateNumber, $(this)))                                       
     });
-}
-
-function pxToNumber(pxValue) {
-    return Number(pxValue.replace('px','')); 
 }
 
 function saveImageWithMustache() {
