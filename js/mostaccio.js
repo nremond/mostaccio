@@ -112,11 +112,8 @@ Mustache.prototype = {
     onGestureEnd: function(e) {
         e.preventDefault();
         this.preventTranslate = true;
-
-        this.transformations.prevScale = this.transformations.prevScale || 1;                    
-        this.transformations.prevScale *= e.originalEvent.scale;
-
-        this.transformations.prevRotate = this.transformations.prevRotate || 0;                    
+               
+        this.transformations.prevScale *= e.originalEvent.scale;                
         this.transformations.prevRotate += e.originalEvent.rotation;
     },
     onGestureChange: function(e) {
