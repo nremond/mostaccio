@@ -259,7 +259,8 @@ function loadMustache(mustacheTemplateNumber) {
 function saveImageWithMustache() {
     var canvas,
         image,
-        ctx;
+        ctx,
+        mustache;
 
     canvas = document.createElement("canvas");
     image = $('#largeImage');
@@ -268,14 +269,26 @@ function saveImageWithMustache() {
     canvas.width = image.width();
     canvas.height = image.height();
 
+    mustache = MUSTACHES[0];
+    smallCanvas = $("#smallCanvas").get(0);
+    mustacheWidth =  (canvas.width / smallCanvas.width) * mustache.width;
+    mustacheLeft =  (canvas.width / smallCanvas.width) * mustache.left;
+    mustacheHeight =  (canvas.height / smallCanvas.height) * mustache.height;
+    mustacheTop =  (canvas.height / smallCanvas.height) * mustache.top;
+
     ctx.drawImage(image.get(0), 0, 0);
-    //ctx.drawImage($('#mustache0').get(0), 0, 0);
+    ctx.translate(mustacheLeft+mustacheWidth/2, mustacheTop+mustacheHeight/2);
+    ctx.rotate(mustache.transformations.rotate/180*Math.PI);
+    //ctx.scale(mustache.transformations.scale, mustache.transformations.scale);
+    ctx.drawImage(mustache.el.get(0), -mustacheWidth/2, -mustacheHeight/2, mustacheWidth, mustacheHeight);
 
     try {
         window.plugins.SaveImage.saveImage(canvas.toDataURL().replace(/^([^,]+),/, ''));
     } catch(e) {
         consoleLog(e);
     }
+
+    //TODO remove the canvas
 }
 
 function consoleLog(str) {
